@@ -25,11 +25,11 @@ Once the above process completes, Your api server will be running on port ``8080
 
 `` curl --location --request GET 'http://localhost:8080/api/cryptos/{name}' ``
 
-Here cryptoname is the name of the crypto.
+Here name is the name of the crypto. e.g BTC
 
 #### Get highest normalized cryptocurrency:
 
 
 `` curl --location --request GET 'http://localhost:8080/api/pi/cryptos/normalized?date={date}' ``
 
-Here date is the date for the day it is required.
+Here date is the date for the day it is required. The format should be in yyyy-MM-dd

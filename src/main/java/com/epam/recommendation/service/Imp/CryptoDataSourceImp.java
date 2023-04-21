@@ -5,26 +5,29 @@ import com.epam.recommendation.model.Crypto;
 import com.epam.recommendation.service.CryptoDataSource;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class CryptoDataSourceImp implements CryptoDataSource {
-    private static final ConcurrentHashMap<String, List<Crypto>> cryptoDataMap = new ConcurrentHashMap<>();
+    private final HashOperations<String, String, List<Crypto>> cache;
     private final List<String> currencies;
     private final CSVReader csvReader;
     private static final int TIMESTAMP_INDEX = 0;
     private static final int SYMBOL_INDEX = 1;
     private static final int PRICE_INDEX = 2;
+    private static final String HASH_KEY = "Crypto";
 
     public CryptoDataSourceImp(@Value("${app.currencies}") List<String> currencies,
-                               CSVReader csvReader) {
+                               CSVReader csvReader, RedisTemplate<String, List<Crypto>> redisTemplate) {
         this.currencies = currencies;
         this.csvReader = csvReader;
+        this.cache = redisTemplate.opsForHash();
     }
 
     /**
@@ -44,7 +47,7 @@ public class CryptoDataSourceImp implements CryptoDataSource {
                 cryptoList.add(new Crypto(Long.parseLong(values[TIMESTAMP_INDEX]),
                         values[SYMBOL_INDEX], BigDecimal.valueOf(Double.parseDouble(values[PRICE_INDEX]))));
             }
-            cryptoDataMap.put(currency, cryptoList);
+            cache.put(HASH_KEY, currency, cryptoList);
         }
     }
 
@@ -55,7 +58,7 @@ public class CryptoDataSourceImp implements CryptoDataSource {
      */
     @Override
     public List<Crypto> get(String cryptoType) {
-        return cryptoDataMap.get(cryptoType);
+        return cache.get(HASH_KEY, cryptoType);
     }
 
     /**
@@ -65,6 +68,6 @@ public class CryptoDataSourceImp implements CryptoDataSource {
      */
     @Override
     public List<String> keys() {
-        return cryptoDataMap.keySet().stream().toList();
+        return cache.keys(HASH_KEY).stream().toList();
     }
 }
