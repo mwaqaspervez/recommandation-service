@@ -1,13 +1,13 @@
-package com.epam.wallpaper;
+package com.epam.recommendation;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class WallpaperOrderService {
+public class RecommendationServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(WallpaperOrderService.class, args);
+        SpringApplication.run(RecommendationServiceApplication.class, args);
     }
 
 }
